@@ -16,7 +16,7 @@ client.once('ready', () => {
 });
 
 client.on('messageCreate', async (message) => {
-    const logChannelId = '1052251122192101518';  // Replace with the channel ID where you want to log messages
+    const logChannelId = process.env.CHANNEL_ID;  // Replace with the channel ID where you want to log messages
     const serverIP = 'arjunmpanarchy.in';  // Replace with your Minecraft server IP
     const serverPort = 25565;  // Default Minecraft port, change if different
 
