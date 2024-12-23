@@ -1,6 +1,8 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 const { status } = require('minecraft-server-util');
+const simpleGit = require('simple-git');
+const { exec } = require('child_process');
 
 const client = new Client({
     intents: [
@@ -10,6 +12,9 @@ const client = new Client({
         GatewayIntentBits.GuildMessageReactions
     ]
 });
+
+const git = simpleGit();
+const repoURL = 'https://github.com/safder2000/endereye.git'; // Your repository URL
 
 client.once('ready', () => {
     console.log('Bot is online!');
@@ -49,19 +54,35 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    // Respond to bot mentions with keyword checking
-    if (message.mentions.has(client.user)) {
-        const content = message.content.toLowerCase();
-        if (content.includes('status') || content.includes('check') || content.includes('server')) {
-            // Check server status if related keywords are found
-            if (content.includes('server') || content.includes('arjun')) {
-                message.reply('You can check the server status by typing "check arjun mp" or similar commands.');
-            } else {
-                message.reply('I didn\'t quite catch that. Please try again or check the server status using a command like "check arjun mp".');
-            }
-        } else {
-            // Provide a brief manual if no specific keyword is found
-            message.reply(`Hi ${message.author.username}! How can I help you?\nYou can use commands like "check arjun mp" to check the server status or "check player [name]" to see if a specific player is online.`);
+    // Update the bot's code
+    if (message.content.toLowerCase() === 'update bot') {
+        if (!message.member.permissions.has('ADMINISTRATOR')) {
+            return message.reply('You don’t have permission to update the bot.');
+        }
+
+        message.channel.send('Checking for updates...');
+        
+        try {
+            // Pull updates from GitHub
+            await git.pull('origin', 'main');
+            
+            message.channel.send('Updates pulled. Restarting bot...');
+            
+            // Restart the bot
+            exec('npm install', (err) => {
+                if (err) {
+                    return message.channel.send('Error while installing dependencies: ' + err.message);
+                }
+                
+                exec('node bot.js', (restartErr) => {
+                    if (restartErr) {
+                        return message.channel.send('Failed to restart bot: ' + restartErr.message);
+                    }
+                    process.exit(); // Exit the current process so the new one takes over
+                });
+            });
+        } catch (error) {
+            message.channel.send('Failed to update the bot: ' + error.message);
         }
     }
 
