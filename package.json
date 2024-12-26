@@ -12,6 +12,7 @@
   "dependencies": {
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.7",
-    "minecraft-server-util": "^5.4.4"
+    "minecraft-server-util": "^5.4.4",
+    "simple-git": "^3.27.0"
   }
 }
